@@ -14,6 +14,8 @@ interface BaseField<M : BaseModel<M>, T : Any> :
         DbFieldConverter,
         DbFieldDDL {
     val model: M
+    val isAutoInc:Boolean
+        get() = false
 
     val usedModels:Pair<M, Set<BaseModel<*>>>
 

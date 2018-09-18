@@ -59,8 +59,8 @@ class SchemaCreator(private val cr :Transaction) {
 
 
         for (table in allModels) {
+            table.load()
             if (!utils.modelExist(table)){
-                table.load()
                 statements.add(table.createBaseModel(cr.dialect))
             }
         }

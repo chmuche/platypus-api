@@ -1,8 +1,8 @@
 package org.platypus.v2.db.cr
 
+import org.platypus.v2.db.database.DbDialect
 import org.platypus.v2.env.PlatypusEnvironment
 import org.platypus.v2.model.field.api.DbFieldConverter
-import java.sql.PreparedStatement
 import java.sql.Statement
 import java.util.*
 
@@ -84,8 +84,25 @@ interface SqlLogger {
     fun logError(s: Any, e: Throwable? = null)
 }
 
+private class StoutPrint : SqlLogger{
+    override fun log(context: StatementContext, env: PlatypusEnvironment, delta: Long) {
+        println("${context.sql()} t:$delta")
+    }
+
+    override fun log(s: Any, delta: Long) {
+        println("$s t:$delta")
+    }
+
+    override fun logError(s: Any, e: Throwable?) {
+        println("ERROR: $s ${e?.message}")
+    }
+}
+
 class CompositeSqlLogger : SqlLogger, StatementInterceptor {
     private val loggers: ArrayList<SqlLogger> = ArrayList(2)
+    init {
+        register(StoutPrint())
+    }
 
     fun register(logger: SqlLogger) {
         loggers.add(logger)

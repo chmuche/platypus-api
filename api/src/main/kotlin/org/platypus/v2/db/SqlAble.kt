@@ -1,6 +1,7 @@
 package org.platypus.v2.db
 
 import org.platypus.v2.db.cr.StatementExecutor
+import org.platypus.v2.db.cr.Transaction
 import org.platypus.v2.db.database.DbDialect
 import org.platypus.v2.model.field.api.BaseField
 import org.platypus.v2.model.field.api.DbFieldConverter
@@ -22,7 +23,7 @@ interface SqlQueryParameter {
 class QueryBuilder(val prepared: Boolean = false) {
     val args = ArrayList<Pair<DbFieldConverter, Any?>>()
 
-    fun <T> registerArgument(executor: StatementExecutor, column: BaseField<*, *>, argument: T): String = when (argument) {
+    fun <T> registerArgument(dialect: DbDialect, column: BaseField<*, *>, argument: T): String = when (argument) {
 //        is Expression<*> -> argument.accept(executor.dialect.expressionVisitor, this)
 //        DefaultValueMarker -> asLiteral(column.default!!).accept(executor.dialect.expressionVisitor, this)
         else -> registerArgument(column, argument)

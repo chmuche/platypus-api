@@ -11,6 +11,8 @@ import org.platypus.v2.model.field.api.FieldDDL
 
 class IdFieldImpl<M : BaseModel<M>>(override val model: M) : IdField<M> {
     override val usedModels: Pair<M, Set<BaseModel<*>>>  = model to emptySet()
+    override val isAutoInc: Boolean = true
+
     override fun compareTo(other: BaseField<*, *>): Int {
         TODO("not implemented")
     }

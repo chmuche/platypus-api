@@ -3,6 +3,9 @@ package org.platypus.v2.utils
 import org.platypus.v2.env.PlatypusContext
 import org.platypus.v2.env.PlatypusEnvironment
 import org.platypus.v2.env.ReadOnlyPlatypusEnvironment
+import org.platypus.v2.model.BaseModel
+import org.platypus.v2.record.bag.Bag
+import org.platypus.v2.record.one.Record
 import org.platypus.v2.security.PlatypusUser
 
 interface Identifiable {
@@ -56,3 +59,12 @@ interface EnvironementFactory {
 
     fun newFakeEnv(user: PlatypusUser? = null, ctx: PlatypusContext? = null): PlatypusEnvironment
 }
+
+val <M : BaseModel<M>> Iterable<Record<M>>.ids: List<Int>
+    get() {
+        return if (this is Bag<*>) {
+            this.ids.toList()
+        } else {
+            this.map { it.id }
+        }
+    }

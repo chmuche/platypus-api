@@ -4,6 +4,7 @@ import org.platypus.v2.db.ANSI_SQL_2003_KEYWORDS
 import org.platypus.v2.db.ReferenceOption
 import org.platypus.v2.db.cr.StatementExecutor
 import org.platypus.v2.db.cr.Transaction
+import org.platypus.v2.db.cr.statements.InsertStatement
 import org.platypus.v2.db.database.DbDialect
 import org.platypus.v2.model.BaseModel
 import org.platypus.v2.model.field.api.BaseField
@@ -92,31 +93,41 @@ abstract class SqlDialect(override val dialectName: String, private val metadata
             else -> this
         }
 
-    protected open val DEFAULT_VALUE_EXPRESSION = "DEFAULT VALUES"
-
-    override fun insert(table: BaseModel<*>, columns: List<BaseField<*, *>>, expr: String, cr: StatementExecutor): String {
-        val (columnsExpr, valuesExpr) = if (columns.isNotEmpty()) {
-            columns.joinToString(prefix = "(", postfix = ")") { identity(it) } to expr
-        } else "" to DEFAULT_VALUE_EXPRESSION
-
-        return "INSERT INTO ${identity(table)} $columnsExpr $valuesExpr"
+    override fun insert(table: BaseModel<*>): InsertStatement<Int> {
+        return InsertStatement(this, table)
     }
 
-    override fun delete(table: BaseModel<*>, where: String?, cr: StatementExecutor): String {
-        return buildString {
-            token("DELETE")
-            token("FROM")
-            token(identity(table))
-            if (where != null) {
-                token("WHERE")
-                append(where)
-            }
-        }
+    override fun batchInsert(table: BaseModel<*>): InsertStatement<Int> {
+        TODO("not implemented")
+    }
+
+    override fun delete(table: BaseModel<*>): String {
+        TODO("not implemented")
+    }
+
+    override fun update(table: BaseModel<*>): String {
+        TODO("not implemented")
     }
 
     override fun replace(table: BaseModel<*>, data: List<Pair<BaseField<*, *>, Any?>>, cr: StatementExecutor): String {
         TODO("not implemented")
     }
+
+    //    override fun delete(table: BaseModel<*>, where: String?, cr: StatementExecutor): String {
+//        return buildString {
+//            token("DELETE")
+//            token("FROM")
+//            token(identity(table))
+//            if (where != null) {
+//                token("WHERE")
+//                append(where)
+//            }
+//        }
+//    }
+//
+//    override fun replace(table: BaseModel<*>, data: List<Pair<BaseField<*, *>, Any?>>, cr: StatementExecutor): String {
+//        TODO("not implemented")
+//    }
 
     override fun createIndex(unique: Boolean, tableName: String, indexName: String, columns: List<String>): String {
         TODO("not implemented")

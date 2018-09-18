@@ -1,6 +1,7 @@
 package org.platypus.v2.env
 
 import org.platypus.v2.db.cr.StatementExecutor
+import org.platypus.v2.db.cr.Transaction
 import org.platypus.v2.model.Model
 import org.platypus.v2.record.one.Record
 import org.platypus.v2.record.repo.RecordRepository
@@ -37,7 +38,7 @@ interface PlatypusEnvironment : ReadOnlyPlatypusEnvironment, SudoAble<PlatypusEn
      */
     fun connect(user: PlatypusUser): PlatypusEnvironment
 
-    val cr: StatementExecutor
+    val cr: Transaction
 
 }
 

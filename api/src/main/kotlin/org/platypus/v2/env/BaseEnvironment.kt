@@ -1,6 +1,7 @@
 package org.platypus.v2.env
 
 import org.platypus.v2.db.cr.StatementExecutor
+import org.platypus.v2.db.cr.Transaction
 import org.platypus.v2.model.Model
 import org.platypus.v2.record.one.Record
 import org.platypus.v2.record.repo.RecordRepository
@@ -10,15 +11,15 @@ import java.util.logging.Logger
 
 val ROOT_USER = object : PlatypusUser {}
 
-class BaseEnvironment(
+class BaseEnvironment private constructor(
         override val envUser: PlatypusUser,
         override val sudoUser: PlatypusUser,
         override val context: PlatypusContext,
-        override val cr: StatementExecutor
+        override val cr: Transaction
 ) : PlatypusEnvironment {
 
     internal companion object {
-        fun create(user: PlatypusUser?, context: PlatypusContext, newTransaction: StatementExecutor): BaseEnvironment {
+        fun create(user: PlatypusUser?, context: PlatypusContext, newTransaction: Transaction): BaseEnvironment {
             val userUsed = user ?: ROOT_USER
             return BaseEnvironment(userUsed, userUsed, context, newTransaction)
         }

@@ -5,6 +5,7 @@ import org.platypus.v2.model.field.api.BaseField
 import org.platypus.v2.db.ReferenceOption
 import org.platypus.v2.db.cr.StatementExecutor
 import org.platypus.v2.db.cr.Transaction
+import org.platypus.v2.db.cr.statements.InsertStatement
 
 interface DbDialect {
     val dialectName: String
@@ -36,8 +37,13 @@ interface DbDialect {
 
     // Specific SQL statements
 
-    fun insert(table: BaseModel<*>, columns: List<BaseField<*, *>>, expr: String, cr: StatementExecutor): String
-    fun delete(table: BaseModel<*>, where: String?, cr: StatementExecutor): String
+    val DEFAULT_VALUE_EXPRESSION :String get() = "DEFAULT VALUES"
+
+    fun insert(table: BaseModel<*>): InsertStatement<Int>
+    fun batchInsert(table: BaseModel<*>): InsertStatement<Int>
+    fun delete(table: BaseModel<*>): String
+    fun update(table: BaseModel<*>): String
+
     fun replace(table: BaseModel<*>, data: List<Pair<BaseField<*, *>, Any?>>, cr: StatementExecutor): String
 
     fun createIndex(unique: Boolean, tableName: String, indexName: String, columns: List<String>): String
