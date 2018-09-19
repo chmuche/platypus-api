@@ -33,7 +33,7 @@ import kotlin.reflect.KProperty
 class RecordImpl<M : BaseModel<M>>(
         override val env: PlatypusEnvironment,
         override val id: Int,
-        val model: M
+        override val model: M
 ) : Record<M> {
 
 

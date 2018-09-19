@@ -7,9 +7,13 @@ import org.platypus.v2.utils.ContextAble
 import org.platypus.v2.utils.Environmentable
 import org.platypus.v2.utils.SudoAble
 
-interface Record<M : BaseModel<M>> : SudoAble<Record<M>>, ContextAble<Record<M>>, Environmentable, ImmutableRecordField<M>, RecordMetaData {
-
-    val model:M
+interface Record<M : BaseModel<M>> :
+        SudoAble<Record<M>>,
+        ContextAble<Record<M>>,
+        Environmentable,
+        ImmutableRecordField<M>,
+        RecordMetaData,
+        PersistedRecord<M>{
 
     /**
      * Convert this Record to a bag with only one element witch is the current record

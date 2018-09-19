@@ -4,8 +4,11 @@ import org.platypus.v2.env.PlatypusEnvironment
 import org.platypus.v2.modules.base.models.Users
 import org.platypus.v2.record.bag.Bag
 import org.platypus.v2.record.one.ImmutableRecordField
+import org.platypus.v2.record.one.MutableRecordBuilder
 import org.platypus.v2.record.one.Record
 import org.platypus.v2.record.one.RecordBuilder
+import org.platypus.v2.record.one.RecordBuilderToStore
+import org.platypus.v2.record.one.RecordBuilderToUpdate
 import org.platypus.v2.record.one.RecordField
 import org.platypus.v2.record.repo.RecordRepository
 import org.platypus.v2.record.repo.RecordRepositoryImpl
@@ -24,10 +27,14 @@ val ImmutableRecordField<Users>.password by Users.password
 val ImmutableRecordField<Users>.locale by Users.locale
 val ImmutableRecordField<Users>.groups by Users.groups
 
-var RecordBuilder<Users>.name by Users.name
-var RecordBuilder<Users>.locale by Users.locale
-var RecordBuilder<Users>.password by Users.password
-val RecordBuilder<Users>.groups by Users.groups
+val RecordBuilder<Users>.name by Users.name
+val RecordBuilder<Users>.locale by Users.locale
+val RecordBuilder<Users>.password by Users.password
+var MutableRecordBuilder<Users>.name by Users.name
+var MutableRecordBuilder<Users>.locale by Users.locale
+var MutableRecordBuilder<Users>.password by Users.password
+val RecordBuilderToStore<Users>.groups by Users.groups
+val RecordBuilderToUpdate<Users>.groups by Users.groups
 
 
 //User Entity Method

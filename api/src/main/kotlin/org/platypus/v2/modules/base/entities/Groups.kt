@@ -5,8 +5,11 @@ import org.platypus.v2.modules.base.models.Groups
 import org.platypus.v2.modules.base.models.Users
 import org.platypus.v2.record.bag.Bag
 import org.platypus.v2.record.one.ImmutableRecordField
+import org.platypus.v2.record.one.MutableRecordBuilder
 import org.platypus.v2.record.one.Record
 import org.platypus.v2.record.one.RecordBuilder
+import org.platypus.v2.record.one.RecordBuilderToStore
+import org.platypus.v2.record.one.RecordBuilderToUpdate
 import org.platypus.v2.record.one.RecordField
 import org.platypus.v2.record.repo.RecordRepository
 import org.platypus.v2.record.repo.RecordRepositoryImpl
@@ -23,8 +26,10 @@ val PlatypusEnvironment.groups: GroupsRepository
 val ImmutableRecordField<Groups>.name by Groups.name
 val ImmutableRecordField<Groups>.users by Groups.users
 
-var RecordBuilder<Groups>.name by Groups.name
-var RecordBuilder<Groups>.users by Groups.users
+val RecordBuilder<Groups>.name by Groups.name
+var MutableRecordBuilder<Groups>.name by Groups.name
+val RecordBuilderToStore<Groups>.users by Groups.users
+val RecordBuilderToUpdate<Groups>.users by Groups.users
 
 
 //User Entity Method

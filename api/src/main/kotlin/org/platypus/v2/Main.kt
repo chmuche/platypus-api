@@ -42,46 +42,27 @@ fun main(args: Array<String>) {
 //        println("IDS $rs")
 //    }
     server.inManagedEnvironment {
-        val userBuilder = it.users.newBuilder {
+        val userBuilder = it.users.builderToStore {
             locale = "fr_FR"
             name = "Damien"
             password = "Damien"
         }
 
-        userBuilder.password = "Fred"
+        userBuilder.change {
+            password = "Fred"
+        }
 
         val user = it.users.store(userBuilder)
 
-        val groupBuilder = it.groups.newBuilder {
-//            Mode operator
-            name = "Groups"
-            name = null
-//            Mode Method
-//            name.set("Groups")
-//            name.set(null)
-
-
-//            Valable seulement pour les Many2Many et One2Many
-//            Mode operator
-            users += user // Ajout au exitant
-            users = bagBuilderOf(user) // Remplace les exstant avec user
-            users -= user //Supprime des liaison existantes user
-            users = bagBuilderOf() //Supprime toutes les liaisons existantes
-
-//            Mode method certaine method seront Dispo que pour les create et d'autre pour l'update
-            users.add(user) // Ajout au exitant
-            users.onlyKeep(user) // Ne garde user et supprime les existants
-            users.remove(user) // Supprime la liaison avec user
-            users.removeAll() // Supprime toutes les liaisons
-            users.replaceWith(user) //Remplace les liaison existantes
-            // Pareil que users.removeAll() + users.add(user) savhant que la derniere method est réelement appliqué
-
-//            Derniere option Builder de creation Mode operator avec uquement += et =
-//            Et Builder d'update Uniquement le Mode method
-
-
-
+        var groupBuilder = it.groups.builderToStore {
+            users.add(user)
         }
+
+        groupBuilder = groupBuilder.change {
+            name = ""
+            users.add(user)
+        }
+
         val group = it.groups.store(groupBuilder)
 
         println(user.id)

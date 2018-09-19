@@ -1,10 +1,11 @@
 package org.platypus.v2.record.one
 
+import org.platypus.v2.model.BaseModel
 import org.platypus.v2.security.PlatypusUser
 import org.platypus.v2.utils.Identifiable
 import java.time.LocalDateTime
 
-interface RecordMetaData : Identifiable{
+interface RecordMetaData : Identifiable {
     /**
      * The string representation of the current Record
      */
@@ -30,3 +31,10 @@ interface RecordMetaData : Identifiable{
      */
     val externalRef: String?
 }
+
+interface PersistedRecord<M : BaseModel<M>> {
+    val id: Int
+    val model: M
+}
+
+class PersistedRecordImp<M : BaseModel<M>>(override val id: Int, override val model: M) : PersistedRecord<M>

@@ -4,6 +4,7 @@ import org.platypus.v2.model.BaseModel
 import org.platypus.v2.model.field.Selection
 import org.platypus.v2.model.field.SelectionValue
 import org.platypus.v2.model.field.api.BaseField
+import org.platypus.v2.model.field.api.MultiReferencedField
 import org.platypus.v2.model.field.classic.BinaryField
 import org.platypus.v2.model.field.classic.BooleanField
 import org.platypus.v2.model.field.classic.DateField
@@ -18,14 +19,13 @@ import org.platypus.v2.model.field.reference.Many2ManyField
 import org.platypus.v2.model.field.reference.Many2OneField
 import org.platypus.v2.model.field.reference.One2ManyField
 import org.platypus.v2.record.bag.Bag
-import org.platypus.v2.utils.Environmentable
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import kotlin.reflect.KProperty
 
-interface RecordBuilder<M : BaseModel<M>> : Environmentable {
+interface RecordBuilder<M : BaseModel<M>> {
     val rawData: Map<BaseField<M, *>, Any?>
 
     operator fun TimeField<M>.getValue(o: RecordBuilder<M>, desc: KProperty<*>): LocalTime?
@@ -38,11 +38,13 @@ interface RecordBuilder<M : BaseModel<M>> : Environmentable {
     operator fun IntField<M>.getValue(o: RecordBuilder<M>, desc: KProperty<*>): Int
     operator fun <D : Selection<D>> SelectionField<M, D>.getValue(o: RecordBuilder<M>, desc: KProperty<*>): SelectionValue<D>?
     operator fun BinaryField<M>.getValue(o: RecordBuilder<M>, desc: KProperty<*>): ByteArray?
-    operator fun <TM : BaseModel<TM>> One2ManyField<M, TM>.getValue(o: RecordBuilder<M>, desc: KProperty<*>): BagBuilder<M, TM>
-    operator fun <TM : BaseModel<TM>> Many2ManyField<M, TM>.getValue(o: RecordBuilder<M>, desc: KProperty<*>): BagBuilder<M, TM>
-    operator fun <TM : BaseModel<TM>> Many2OneField<M, TM>.getValue(o: RecordBuilder<M>, desc: KProperty<*>): Record<TM>
-
+    operator fun <TM : BaseModel<TM>> Many2OneField<M, TM>.getValue(o: RecordBuilder<M>, desc: KProperty<*>): PersistedRecord<TM>?
     operator fun IntField<M>.setValue(o: RecordBuilder<M>, desc: KProperty<*>, value: Int?)
+
+}
+
+interface MutableRecordBuilder<M:BaseModel<M>>: RecordBuilder<M>{
+
     operator fun StringField<M>.setValue(o: RecordBuilder<M>, desc: KProperty<*>, value: String?)
     operator fun <D : Selection<D>> SelectionField<M, D>.setValue(o: RecordBuilder<M>, desc: KProperty<*>, value: SelectionValue<D>?)
     operator fun TextField<M>.setValue(o: RecordBuilder<M>, desc: KProperty<*>, value: String?)
@@ -52,31 +54,46 @@ interface RecordBuilder<M : BaseModel<M>> : Environmentable {
     operator fun BooleanField<M>.setValue(o: RecordBuilder<M>, desc: KProperty<*>, value: Boolean?)
     operator fun DecimalField<M>.setValue(o: RecordBuilder<M>, desc: KProperty<*>, value: BigDecimal?)
     operator fun BinaryField<M>.setValue(o: RecordBuilder<M>, desc: KProperty<*>, value: ByteArray?)
-    operator fun <TM : BaseModel<TM>> Many2OneField<M, TM>.setValue(o: RecordBuilder<M>, desc: KProperty<*>, value: Record<TM>?)
-    operator fun <TM : BaseModel<TM>> One2ManyField<M, TM>.setValue(o: RecordBuilder<M>, desc: KProperty<*>, value: BagBuilder<M, TM>)
-    operator fun <TM : BaseModel<TM>> Many2ManyField<M, TM>.setValue(o: RecordBuilder<M>, desc: KProperty<*>, value: BagBuilder<M, TM>)
+    operator fun <TM : BaseModel<TM>> Many2OneField<M, TM>.setValue(o: RecordBuilder<M>, desc: KProperty<*>, value: PersistedRecord<M>)
 
-    operator fun <TM : BaseModel<TM>> BagBuilder<M, TM>.plusAssign(rec:Record<TM>)
-    operator fun <TM : BaseModel<TM>> BagBuilder<M, TM>.plusAssign(rec: Bag<TM>)
-
-    operator fun <TM : BaseModel<TM>> BagBuilder<M, TM>.minusAssign(rec:Record<TM>)
-    operator fun <TM : BaseModel<TM>> BagBuilder<M, TM>.minusAssign(rec: Bag<TM>)
+    fun <TM : BaseModel<TM>> BagBuilder<M, TM>.add(records: Bag<TM>)
+    fun <TM : BaseModel<TM>> BagBuilder<M, TM>.add(record: PersistedRecord<TM>)
+    fun <TM : BaseModel<TM>> BagBuilder<M, TM>.removeAll()
 }
 
-interface BagBuilder<M:BaseModel<M>, TM:BaseModel<TM>>{
+interface RecordBuilderToUpdate<M : BaseModel<M>> : RecordBuilder<M> {
 
-    fun replaceWith(records:Bag<TM>)
-    fun replaceWith(record:Record<TM>)
+    operator fun <TM : BaseModel<TM>> One2ManyField<M, TM>.getValue(o: RecordBuilderToUpdate<M>, desc: KProperty<*>): BagBuilderToUpdate<M, TM>
+    operator fun <TM : BaseModel<TM>> Many2ManyField<M, TM>.getValue(o: RecordBuilderToUpdate<M>, desc: KProperty<*>): BagBuilderToUpdate<M, TM>
 
-    fun onlyKeep(records:Bag<TM>)
-    fun onlyKeep(record:Record<TM>)
+    fun <TM : BaseModel<TM>> BagBuilder<M, TM>.replaceWith(records: Bag<TM>)
+    fun <TM : BaseModel<TM>> BagBuilder<M, TM>.replaceWith(record: Record<TM>)
 
-    fun remove(records:Bag<TM>)
-    fun remove(record:Record<TM>)
+    fun <TM : BaseModel<TM>> BagBuilder<M, TM>.onlyKeep(records: Bag<TM>)
+    fun <TM : BaseModel<TM>> BagBuilder<M, TM>.onlyKeep(record: Record<TM>)
 
-    fun add(records:Bag<TM>)
-    fun add(record:Record<TM>)
+    fun <TM : BaseModel<TM>> BagBuilder<M, TM>.remove(records: Bag<TM>)
+    fun <TM : BaseModel<TM>> BagBuilder<M, TM>.remove(record: Record<TM>)
+}
 
-    fun removeAll()
+interface RecordBuilderToStore<M : BaseModel<M>> : RecordBuilder<M> {
+
+    operator fun <TM : BaseModel<TM>> One2ManyField<M, TM>.getValue(o: RecordBuilderToStore<M>, desc: KProperty<*>): BagBuilderToStore<M, TM>
+    operator fun <TM : BaseModel<TM>> Many2ManyField<M, TM>.getValue(o: RecordBuilderToStore<M>, desc: KProperty<*>): BagBuilderToStore<M, TM>
+
+    fun change(mutateBlock:MutableRecordBuilderToStore<M>.() -> Unit):RecordBuilderToStore<M>
+}
+
+interface MutableRecordBuilderToStore<M : BaseModel<M>> : MutableRecordBuilder<M>, RecordBuilderToStore<M> {
 
 }
+
+interface BagBuilder<M : BaseModel<M>, TM : BaseModel<TM>>{
+    val field: MultiReferencedField<M, TM>
+}
+
+interface BagBuilderToStore<M : BaseModel<M>, TM : BaseModel<TM>> : BagBuilder<M, TM>
+interface BagBuilderToUpdate<M : BaseModel<M>, TM : BaseModel<TM>> : BagBuilder<M, TM>
+
+class BagBuilderImpl<M : BaseModel<M>, TM : BaseModel<TM>>(override val field: MultiReferencedField<M, TM>) : BagBuilderToStore<M, TM>, BagBuilderToUpdate<M, TM>
+

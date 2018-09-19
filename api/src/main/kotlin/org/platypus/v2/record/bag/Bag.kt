@@ -27,9 +27,6 @@ interface Bag<M : BaseModel<M>> : Environmentable, List<Record<M>> {
      */
     val model: M
 
-    operator fun plusAssign(rec:Record<M>)
-    operator fun plusAssign(rec: Bag<M>)
-
 }
 
 class BagRecordImpl<M : BaseModel<M>>(
