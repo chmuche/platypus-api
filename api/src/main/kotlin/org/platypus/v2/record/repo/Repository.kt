@@ -37,6 +37,7 @@ interface RecordRepository<M : BaseModel<M>> : Environmentable, SudoAble<RecordR
      * Store the [RecordBuilder] in the database and return the corresponding [Record]
      */
     fun store(builder: RecordBuilderToStore<M>): Record<M>
+    fun store(builder: Iterable<RecordBuilderToStore<M>>): Record<M>
 }
 
 class RecordRepositoryImpl<M : BaseModel<M>>(override val env: PlatypusEnvironment, override val model: M) : RecordRepository<M> {
@@ -54,6 +55,10 @@ class RecordRepositoryImpl<M : BaseModel<M>>(override val env: PlatypusEnvironme
     override fun store(builder: RecordBuilderToStore<M>): Record<M> {
         val id = internalStore(builder)
         return RecordImpl(env, id, model)
+    }
+
+    override fun store(builder: Iterable<RecordBuilderToStore<M>>): Record<M> {
+        TODO("not implemented")
     }
 
     private fun internalStore(builder: RecordBuilderToStore<M>): Int {

@@ -16,7 +16,7 @@ interface SqlQueryParameter {
     val prepared: Boolean
     val args: List<Pair<DbFieldConverter, Any?>>
     fun <T> registerArgument(executor: StatementExecutor, column: BaseField<*, *>, argument: T): String
-    fun <T> registerArgument(sqlType: DbFieldConverter, argument: T): List<String>
+    fun <T> registerArgument(sqlType: DbFieldConverter, argument: T): String
     fun <T> registerArguments(sqlType: DbFieldConverter, arguments: Iterable<T>): List<String>
 }
 

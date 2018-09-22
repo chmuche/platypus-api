@@ -8,6 +8,7 @@ import org.platypus.v2.modules.base.entities.locale
 import org.platypus.v2.modules.base.entities.name
 import org.platypus.v2.modules.base.entities.password
 import org.platypus.v2.modules.base.entities.users
+import org.platypus.v2.modules.base.models.Groups
 import org.platypus.v2.modules.base.models.Groups.users
 import org.platypus.v2.modules.base.models.Users.locale
 import org.platypus.v2.modules.base.models.Users.password
@@ -16,6 +17,7 @@ import org.platypus.v2.record.bag.BagRecordImpl
 import org.platypus.v2.record.one.BagBuilder
 import org.platypus.v2.record.one.Record
 import org.platypus.v2.record.one.RecordBuilder
+import org.platypus.v2.record.one.RecordBuilderToStore
 import org.platypus.v2.server.PlatypusServer
 
 fun main(args: Array<String>) {
@@ -54,16 +56,16 @@ fun main(args: Array<String>) {
 
         val user = it.users.store(userBuilder)
 
-        var groupBuilder = it.groups.builderToStore {
+        val groupsToCreate = ArrayList<RecordBuilderToStore<Groups>>()
+        groupsToCreate.add(it.groups.builderToStore {
+            name = "Group1"
             users.add(user)
-        }
-
-        groupBuilder = groupBuilder.change {
-            name = ""
+        })
+        groupsToCreate.add(it.groups.builderToStore {
+            name = "Group2"
             users.add(user)
-        }
-
-        val group = it.groups.store(groupBuilder)
+        })
+        val group = it.groups.store(groupsToCreate)
 
         println(user.id)
         println(group.id)
