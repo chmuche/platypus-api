@@ -34,7 +34,7 @@ class BagRecordImpl<M : BaseModel<M>>(
         override val model: M,
         initIds: List<Int>) : Bag<M> {
 
-    private val internalIds:MutableList<Int> = ArrayList(initIds)
+    private val internalIds: MutableList<Int> = ArrayList(initIds)
     override val ids: Collection<Int>
         get() = internalIds
 
@@ -45,7 +45,7 @@ class BagRecordImpl<M : BaseModel<M>>(
 
     override fun containsAll(elements: Collection<Record<M>>): Boolean = ids.containsAll(elements.ids)
 
-    override fun get(index: Int): Record<M>  =RecordImpl(env, internalIds[index], model)
+    override fun get(index: Int): Record<M> = RecordImpl(env, internalIds[index], model)
 
 
     override fun indexOf(element: Record<M>): Int = ids.indexOf(element.id)

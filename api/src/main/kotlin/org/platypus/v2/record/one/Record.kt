@@ -36,11 +36,6 @@ interface Record<M : BaseModel<M>> :
     fun validate(): Set<String>
 
     /**
-     * Return [true] if the current record is in persitence layer or will be at the end of the [PlatypusEnvironement]
-     */
-    fun isStore(): Boolean
-
-    /**
      * Fetch the current entity with the current [predicate] and erase the value in the cache with the new one
      * Before a flush only for this record is processed
      * Can throw a [MissingRecordException] if the entity don't exist anymore in the persitence layer

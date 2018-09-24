@@ -4,11 +4,13 @@ import org.platypus.v2.db.ANSI_SQL_2003_KEYWORDS
 import org.platypus.v2.db.ReferenceOption
 import org.platypus.v2.db.cr.StatementExecutor
 import org.platypus.v2.db.cr.Transaction
+import org.platypus.v2.db.cr.statements.BatchInsertStatement
+import org.platypus.v2.db.cr.statements.DeleteStatement
 import org.platypus.v2.db.cr.statements.InsertStatement
+import org.platypus.v2.db.cr.statements.UpdateStatement
 import org.platypus.v2.db.database.DbDialect
 import org.platypus.v2.model.BaseModel
 import org.platypus.v2.model.field.api.BaseField
-import org.platypus.v2.utils.token
 import java.math.BigDecimal
 import java.sql.DatabaseMetaData
 import java.util.*
@@ -97,37 +99,21 @@ abstract class SqlDialect(override val dialectName: String, private val metadata
         return InsertStatement(this, table)
     }
 
-    override fun batchInsert(table: BaseModel<*>): InsertStatement<Int> {
-        TODO("not implemented")
+    override fun batchInsert(table: BaseModel<*>): BatchInsertStatement {
+        return BatchInsertStatement(this, table)
     }
 
-    override fun delete(table: BaseModel<*>): String {
-        TODO("not implemented")
+    override fun delete(table: BaseModel<*>): DeleteStatement {
+        return DeleteStatement(this, table)
     }
 
-    override fun update(table: BaseModel<*>): String {
-        TODO("not implemented")
+    override fun update(table: BaseModel<*>): UpdateStatement {
+        return UpdateStatement(this, table)
     }
 
     override fun replace(table: BaseModel<*>, data: List<Pair<BaseField<*, *>, Any?>>, cr: StatementExecutor): String {
         TODO("not implemented")
     }
-
-    //    override fun delete(table: BaseModel<*>, where: String?, cr: StatementExecutor): String {
-//        return buildString {
-//            token("DELETE")
-//            token("FROM")
-//            token(identity(table))
-//            if (where != null) {
-//                token("WHERE")
-//                append(where)
-//            }
-//        }
-//    }
-//
-//    override fun replace(table: BaseModel<*>, data: List<Pair<BaseField<*, *>, Any?>>, cr: StatementExecutor): String {
-//        TODO("not implemented")
-//    }
 
     override fun createIndex(unique: Boolean, tableName: String, indexName: String, columns: List<String>): String {
         TODO("not implemented")

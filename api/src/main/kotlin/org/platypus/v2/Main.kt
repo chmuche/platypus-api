@@ -44,31 +44,26 @@ fun main(args: Array<String>) {
 //        println("IDS $rs")
 //    }
     server.inManagedEnvironment {
+
+        val group1 = it.groups.store(it.groups.builderToStore {
+            name = "Group1"
+        })
+        println(group1.id)
+
+        val group2 = it.groups.store(it.groups.builderToStore {
+            name = "Group2"
+        })
+        println(group2.id)
+
         val userBuilder = it.users.builderToStore {
             locale = "fr_FR"
             name = "Damien"
-            password = "Damien"
-        }
-
-        userBuilder.change {
-            password = "Fred"
+            password = "Fred2"
+            groups.add(group1 + group2)
         }
 
         val user = it.users.store(userBuilder)
-
-        val groupsToCreate = ArrayList<RecordBuilderToStore<Groups>>()
-        groupsToCreate.add(it.groups.builderToStore {
-            name = "Group1"
-            users.add(user)
-        })
-        groupsToCreate.add(it.groups.builderToStore {
-            name = "Group2"
-            users.add(user)
-        })
-        val group = it.groups.store(groupsToCreate)
-
         println(user.id)
-        println(group.id)
 
 //        println(user.name)
 //        println(user.password)

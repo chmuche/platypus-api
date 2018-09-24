@@ -42,14 +42,10 @@ class RecordImpl<M : BaseModel<M>>(
     }
 
     override fun plus(other: Record<M>): Bag<M> {
-        TODO("not implemented")
+        return BagRecordImpl(env, model, listOf(id, other.id))
     }
 
     override fun validate(): Set<String> {
-        TODO("not implemented")
-    }
-
-    override fun isStore(): Boolean {
         TODO("not implemented")
     }
 
@@ -85,56 +81,44 @@ class RecordImpl<M : BaseModel<M>>(
         TODO("not implemented")
     }
 
-    override fun TimeField<M>.getValue(o: Record<M>, desc: KProperty<*>): LocalTime? {
-        TODO("not implemented")
-    }
+    override fun TimeField<M>.getValue(o: Record<M>, desc: KProperty<*>): LocalTime? = env.cr.cache[model to id][this] as LocalTime?
 
-    override fun StringField<M>.getValue(o: ImmutableRecordField<M>, desc: KProperty<*>): String? {
-        TODO("not implemented")
-    }
 
-    override fun TextField<M>.getValue(o: ImmutableRecordField<M>, desc: KProperty<*>): String? {
-        TODO("not implemented")
-    }
+    override fun StringField<M>.getValue(o: ImmutableRecordField<M>, desc: KProperty<*>): String? = env.cr.cache[model to id][this] as String?
 
-    override fun DateField<M>.getValue(o: ImmutableRecordField<M>, desc: KProperty<*>): LocalDate? {
-        TODO("not implemented")
-    }
+    override fun TextField<M>.getValue(o: ImmutableRecordField<M>, desc: KProperty<*>): String? = env.cr.cache[model to id][this] as String?
 
-    override fun DateTimeField<M>.getValue(o: ImmutableRecordField<M>, desc: KProperty<*>): LocalDateTime? {
-        TODO("not implemented")
-    }
+    override fun DateField<M>.getValue(o: ImmutableRecordField<M>, desc: KProperty<*>): LocalDate? = env.cr.cache[model to id][this] as LocalDate?
 
-    override fun BooleanField<M>.getValue(o: ImmutableRecordField<M>, desc: KProperty<*>): Boolean {
-        TODO("not implemented")
-    }
+    override fun DateTimeField<M>.getValue(o: ImmutableRecordField<M>, desc: KProperty<*>): LocalDateTime? = env.cr.cache[model to id][this] as LocalDateTime?
 
-    override fun DecimalField<M>.getValue(o: ImmutableRecordField<M>, desc: KProperty<*>): BigDecimal {
-        TODO("not implemented")
-    }
+    override fun BooleanField<M>.getValue(o: ImmutableRecordField<M>, desc: KProperty<*>): Boolean = env.cr.cache[model to id][this] as Boolean?
+            ?: false
 
-    override fun IntField<M>.getValue(o: ImmutableRecordField<M>, desc: KProperty<*>): Int {
-        TODO("not implemented")
-    }
+    override fun DecimalField<M>.getValue(o: ImmutableRecordField<M>, desc: KProperty<*>): BigDecimal = env.cr.cache[model to id][this] as BigDecimal?
+            ?: BigDecimal.ZERO
 
-    override fun <D : Selection<D>> SelectionField<M, D>.getValue(o: ImmutableRecordField<M>, desc: KProperty<*>): SelectionValue<D>? {
-        TODO("not implemented")
-    }
+    override fun IntField<M>.getValue(o: ImmutableRecordField<M>, desc: KProperty<*>): Int = env.cr.cache[model to id][this] as Int?
+            ?: 0
 
-    override fun BinaryField<M>.getValue(o: ImmutableRecordField<M>, desc: KProperty<*>): ByteArray? {
-        TODO("not implemented")
-    }
+    override fun <D : Selection<D>> SelectionField<M, D>.getValue(o: ImmutableRecordField<M>, desc: KProperty<*>): SelectionValue<D>? = env.cr.cache[model to id][this] as SelectionValue<D>?
+
+    override fun BinaryField<M>.getValue(o: ImmutableRecordField<M>, desc: KProperty<*>): ByteArray? = env.cr.cache[model to id][this] as ByteArray?
 
     override fun <TM : BaseModel<TM>> One2ManyField<M, TM>.getValue(o: ImmutableRecordField<M>, desc: KProperty<*>): Bag<TM> {
-        TODO("not implemented")
+        val targetIds = env.cr.cache[model to id][this] as List<Int> ?: emptyList()
+        return BagRecordImpl(env, this.target, targetIds)
+
     }
 
     override fun <TM : BaseModel<TM>> Many2ManyField<M, TM>.getValue(o: ImmutableRecordField<M>, desc: KProperty<*>): Bag<TM> {
-        TODO("not implemented")
+        val targetIds = env.cr.cache[model to id][this] as List<Int> ?: emptyList()
+        return BagRecordImpl(env, this.target, targetIds)
     }
 
     override fun <TM : BaseModel<TM>> Many2OneField<M, TM>.getValue(o: ImmutableRecordField<M>, desc: KProperty<*>): Record<TM> {
-        TODO("not implemented")
+        val targetId = env.cr.cache[model to id][this] as Int? ?: -1
+        return RecordImpl(env, targetId, this.target)
     }
 
     override val displayName: String

@@ -1,11 +1,15 @@
 package org.platypus.v2.db.database
 
-import org.platypus.v2.model.BaseModel
-import org.platypus.v2.model.field.api.BaseField
 import org.platypus.v2.db.ReferenceOption
 import org.platypus.v2.db.cr.StatementExecutor
 import org.platypus.v2.db.cr.Transaction
+import org.platypus.v2.db.cr.statements.BatchInsertStatement
+import org.platypus.v2.db.cr.statements.DeleteStatement
 import org.platypus.v2.db.cr.statements.InsertStatement
+import org.platypus.v2.db.cr.statements.UpdateStatement
+import org.platypus.v2.db.predicate.Predicate
+import org.platypus.v2.model.BaseModel
+import org.platypus.v2.model.field.api.BaseField
 
 interface DbDialect {
     val dialectName: String
@@ -13,7 +17,7 @@ interface DbDialect {
     fun identity(mod: BaseField<*, *>): String
 
     val ddlUtil: DDLUtil
-    val debug :Boolean
+    val debug: Boolean
         get() = true
 
     fun supportsSelectForUpdate(): Boolean
@@ -37,12 +41,12 @@ interface DbDialect {
 
     // Specific SQL statements
 
-    val DEFAULT_VALUE_EXPRESSION :String get() = "DEFAULT VALUES"
+    val DEFAULT_VALUE_EXPRESSION: String get() = "DEFAULT VALUES"
 
     fun insert(table: BaseModel<*>): InsertStatement<Int>
-    fun batchInsert(table: BaseModel<*>): InsertStatement<Int>
-    fun delete(table: BaseModel<*>): String
-    fun update(table: BaseModel<*>): String
+    fun batchInsert(table: BaseModel<*>): BatchInsertStatement
+    fun delete(table: BaseModel<*>, where: Predicate? = null): DeleteStatement
+    fun update(table: BaseModel<*>, where: Predicate? = null, limit: Int? = null): UpdateStatement
 
     fun replace(table: BaseModel<*>, data: List<Pair<BaseField<*, *>, Any?>>, cr: StatementExecutor): String
 

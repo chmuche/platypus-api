@@ -3,10 +3,9 @@ package org.platypus.v2.db.cr
 import org.platypus.v2.db.database.DbDialect
 import org.platypus.v2.db.database.TransactionMode
 import org.platypus.v2.model.BaseModel
-import org.platypus.v2.model.field.api.DbFieldConverter
+import org.platypus.v2.model.field.api.BaseField
+import org.platypus.v2.record.one.RecordBuilder
 import java.sql.Connection
-import java.sql.PreparedStatement
-import java.sql.ResultSet
 import java.sql.Statement
 import java.util.*
 
@@ -15,6 +14,23 @@ interface Transaction : Connection {
     val dialect: DbDialect
     val dbName: String
     val executor: StatementExecutor
+    val cache: TransactionRecordCache
+}
+
+interface TransactionRecordCache {
+    operator fun set(cacheRef: Pair<BaseModel<*>, Int>, data: RecordBuilder<*>)
+    operator fun get(cacheRef: Pair<BaseModel<*>, Int>): Map<BaseField<*, *>, Any?>
+}
+
+class DefaultTransactionCache : TransactionRecordCache {
+    private val cache: MutableMap<BaseModel<*>, MutableMap<Int, MutableMap<BaseField<*, *>, Any?>>> = HashMap()
+    override fun set(cacheRef: Pair<BaseModel<*>, Int>, data: RecordBuilder<*>) {
+        cache.getOrPut(cacheRef.first, { HashMap() })[cacheRef.second] = data.rawData.toMutableMap()
+    }
+
+    override fun get(cacheRef: Pair<BaseModel<*>, Int>): Map<BaseField<*, *>, Any?> {
+        return cache.getOrPut(cacheRef.first, { HashMap() })[cacheRef.second] ?: emptyMap()
+    }
 }
 
 class TransactionStat : StatementInterceptor {
