@@ -2,6 +2,7 @@ package org.platypus.v2.db.database
 
 import org.platypus.v2.db.cr.StatementExecutor
 import org.platypus.v2.db.cr.Transaction
+import org.platypus.v2.db.cr.TransactionRecordCache
 import org.platypus.v2.db.database.dialect.SqlDialectFactory
 import java.sql.Connection
 import java.sql.DriverManager
@@ -19,6 +20,9 @@ private class TransactionApiImpl(
     override val executor: StatementExecutor = StatementExecutor(this)
     override val dbName: String
         get() = connection.catalog
+
+    override val cache: TransactionRecordCache
+        get() = TODO("not implemented")
 
     override fun commit() {
         if (mode == TransactionMode.AUTO_COMMIT || mode == TransactionMode.MANUAL) {

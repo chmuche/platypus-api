@@ -10,7 +10,11 @@ interface SqlExpression {
     fun toSql(dialect: DbDialect, q: SqlQueryParameter): String
 }
 
-interface Predicate : SqlExpression
+interface Predicate : SqlExpression {
+    fun and(predicate: Predicate) = AndPredicate(this, predicate)
+    fun or(predicate: Predicate) = OrPredicate(this, predicate)
+}
+
 interface ComparePredicate : Predicate {
     val field: BaseField<*, *>
     val value: Any?
@@ -20,12 +24,10 @@ interface ComparePredicate : Predicate {
 internal object PredicateUtils {
 
     fun comparaisonOp(compPredicate: ComparePredicate, dialect: DbDialect, q: SqlQueryParameter) = buildString {
-        append(toSql(compPredicate.field, dialect))
+        token(compPredicate.field.completeName(dialect))
         token(compPredicate.operator)
         append(q.registerArgument(compPredicate.field, compPredicate.value))
     }
-
-    fun toSql(field: BaseField<*, *>, dialect: DbDialect) = dialect.identity(field.model) + "." + dialect.identity(field)
 }
 
 class EqPredicate(override val field: BaseField<*, *>, override val value: Any?) : ComparePredicate {
@@ -81,7 +83,7 @@ class GreaterEqPredicate(override val field: BaseField<*, *>, override val value
 class AndPredicate(val predicate1: Predicate, val predicate2: Predicate) : Predicate {
     val operator: String = "AND"
     override fun toSql(dialect: DbDialect, q: SqlQueryParameter): String = buildString {
-        append(predicate1.toSql(dialect, q))
+        token(predicate1.toSql(dialect, q))
         token(operator)
         append(predicate2.toSql(dialect, q))
     }
@@ -90,7 +92,7 @@ class AndPredicate(val predicate1: Predicate, val predicate2: Predicate) : Predi
 class OrPredicate(val predicate1: Predicate, val predicate2: Predicate) : Predicate {
     val operator: String = "OR"
     override fun toSql(dialect: DbDialect, q: SqlQueryParameter): String = buildString {
-        append(predicate1.toSql(dialect, q))
+        token(predicate1.toSql(dialect, q))
         token(operator)
         append(predicate2.toSql(dialect, q))
     }
@@ -108,7 +110,7 @@ class NotInListPredicate(field: BaseField<*, *>, iterable: Iterable<Any>) : Pred
 private fun InListPredicate.InNotInPredicateToSql(isInList: Boolean, dialect: DbDialect, q: SqlQueryParameter): String = buildString {
     iterable.iterator().let { i ->
         val first = i.next()
-        PredicateUtils.toSql(field, dialect)
+        append(field.completeName(dialect))
         if (!i.hasNext()) {
             when {
                 isInList -> append(" = ")

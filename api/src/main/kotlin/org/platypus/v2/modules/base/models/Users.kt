@@ -20,5 +20,5 @@ object Users : Model<Users>("res.users") {
     }
 
     val groups = many2many("groups", { userGroupRel })
-    val partner  = many2one("partner", Users)
+    val partner = many2one("partner", Users)
 }

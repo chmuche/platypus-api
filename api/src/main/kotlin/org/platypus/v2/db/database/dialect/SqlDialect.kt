@@ -9,6 +9,7 @@ import org.platypus.v2.db.cr.statements.DeleteStatement
 import org.platypus.v2.db.cr.statements.InsertStatement
 import org.platypus.v2.db.cr.statements.UpdateStatement
 import org.platypus.v2.db.database.DbDialect
+import org.platypus.v2.db.predicate.Predicate
 import org.platypus.v2.model.BaseModel
 import org.platypus.v2.model.field.api.BaseField
 import java.math.BigDecimal
@@ -103,12 +104,12 @@ abstract class SqlDialect(override val dialectName: String, private val metadata
         return BatchInsertStatement(this, table)
     }
 
-    override fun delete(table: BaseModel<*>): DeleteStatement {
-        return DeleteStatement(this, table)
+    override fun delete(table: BaseModel<*>, where: Predicate?): DeleteStatement {
+        return DeleteStatement(this, table, where)
     }
 
-    override fun update(table: BaseModel<*>): UpdateStatement {
-        return UpdateStatement(this, table)
+    override fun update(table: BaseModel<*>, where: Predicate?, limit: Int?): UpdateStatement {
+        return UpdateStatement(this, table, where, limit)
     }
 
     override fun replace(table: BaseModel<*>, data: List<Pair<BaseField<*, *>, Any?>>, cr: StatementExecutor): String {
