@@ -7,6 +7,8 @@ import org.platypus.v2.model.field.api.FieldDDL
 import org.platypus.v2.model.field.api.IndexableField
 import org.platypus.v2.db.database.DbDialect
 import org.platypus.v2.visitor.BaseFieldVisitor
+import java.sql.PreparedStatement
+import java.sql.Timestamp
 import java.time.LocalDate
 
 interface DateField<M : BaseModel<M>> : ClassicField<M, LocalDate>, IndexableField {

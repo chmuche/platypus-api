@@ -31,18 +31,24 @@ import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.util.*
 import kotlin.reflect.KProperty
 
-class RecordBuilderToStoreImpl<M : BaseModel<M>>(initData: Map<BaseField<M, *>, Any?>) : MutableRecordBuilderToStore<M> {
+class RecordBuilderToStoreImpl<M : BaseModel<M>>(val model:M, initData: Map<BaseField<M, *>, Any?>) : MutableRecordBuilderToStore<M> {
     private val data = HashMap<BaseField<M, *>, Any?>(initData)
+
+    override var externalRef: String = model.tableName + Random().nextInt()
+
     override val rawData: Map<BaseField<M, *>, Any?>
         get() = data
 
     override fun change(mutateBlock: MutableRecordBuilderToStore<M>.() -> Unit): RecordBuilderToStore<M> {
-        val toMutate = RecordBuilderToStoreImpl(rawData)
+        val toMutate = RecordBuilderToStoreImpl(model, rawData)
         toMutate.mutateBlock()
         return toMutate
     }
+
+
 
     fun <T : Any> BaseField<M, T>.getValue(default: T): T = data.getOrDefault(this, default) as T
 
@@ -127,20 +133,20 @@ class RecordBuilderToStoreImpl<M : BaseModel<M>>(initData: Map<BaseField<M, *>, 
         return data[this] as ByteArray?
     }
 
-    override fun <TM : BaseModel<TM>> One2ManyField<M, TM>.getValue(o: RecordBuilderToStore<M>, desc: KProperty<*>): BagBuilderToStore<M, TM> {
-        return BagBuilderImpl(this)
-    }
-
-    override fun <TM : BaseModel<TM>> Many2ManyField<M, TM>.getValue(o: RecordBuilderToStore<M>, desc: KProperty<*>): BagBuilderToStore<M, TM> {
-        return BagBuilderImpl(this)
-    }
-
     override fun <TM : BaseModel<TM>> Many2OneField<M, TM>.getValue(o: RecordBuilder<M>, desc: KProperty<*>): PersistedRecord<TM>? {
         return (data[this] as Int?)?.let { PersistedRecordImp(it, this.target) }
     }
 
-    override fun <TM : BaseModel<TM>> Many2OneField<M, TM>.setValue(o: RecordBuilder<M>, desc: KProperty<*>, value: PersistedRecord<M>) {
-        data[this] = value
+    override fun <TM : BaseModel<TM>> Many2OneField<M, TM>.setValue(o: RecordBuilder<M>, desc: KProperty<*>, value: PersistedRecord<TM>?) {
+        data[this] = value?.id
+    }
+
+    override fun <TM : BaseModel<TM>> One2ManyField<M, TM>.getValue(o: RecordBuilder<M>, desc: KProperty<*>): BagBuilder<M, TM> {
+        return BagBuilderImpl(this)
+    }
+
+    override fun <TM : BaseModel<TM>> Many2ManyField<M, TM>.getValue(o: RecordBuilder<M>, desc: KProperty<*>): BagBuilder<M, TM> {
+        return BagBuilderImpl(this)
     }
 
     override fun <TM : BaseModel<TM>> BagBuilder<M, TM>.add(records: Bag<TM>) {

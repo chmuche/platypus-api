@@ -26,7 +26,7 @@ abstract class UpdateBuilder<out T>(
     fun containsKey(column: BaseField<*, *>): Boolean = values.containsKey(column)
 
     internal open fun forceSet(column: BaseField<*, *>, value: Any?) {
-        if (!column.required && value == null) {
+        if (column.required && value == null) {
             error("Trying to forceSet null to not required column $column")
         }
         if (value != null && containsKey(column)) {

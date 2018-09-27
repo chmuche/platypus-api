@@ -33,9 +33,9 @@ interface RecordRepository<M : BaseModel<M>> : Environmentable, SudoAble<RecordR
     /**
      * Create a new [RecordBuilder] with the [init] parameter applied to it
      */
-    fun builderToStore(init: MutableRecordBuilderToStore<M>.() -> Unit = {}): RecordBuilderToStore<M>
+    fun builderToStore(init: (MutableRecordBuilderToStore<M>) -> Unit = {}): RecordBuilderToStore<M>
 
-    fun builderToUpdate(init: RecordBuilderToUpdate<M>.() -> Unit = {}): RecordBuilderToUpdate<M>
+    fun builderToUpdate(init: (RecordBuilderToUpdate<M>) -> Unit = {}): RecordBuilderToUpdate<M>
 
     /**
      * Store the [RecordBuilder] in the database and return the corresponding [Record]
@@ -47,9 +47,9 @@ interface RecordRepository<M : BaseModel<M>> : Environmentable, SudoAble<RecordR
 
 class RecordRepositoryImpl<M : BaseModel<M>>(override val env: PlatypusEnvironment, override val model: M) : RecordRepository<M> {
 
-    override fun builderToStore(init: MutableRecordBuilderToStore<M>.() -> Unit): RecordBuilderToStore<M> {
-        val builder = RecordBuilderToStoreImpl(emptyMap<BaseField<M, *>, Any?>())
-        builder.init()
+    override fun builderToStore(init: (MutableRecordBuilderToStore<M>) -> Unit): RecordBuilderToStore<M> {
+        val builder = RecordBuilderToStoreImpl(model, emptyMap())
+        init(builder)
         return builder
     }
 
@@ -75,9 +75,9 @@ class RecordRepositoryImpl<M : BaseModel<M>>(override val env: PlatypusEnvironme
         for ((key, value) in builderWithDefault.rawData) {
             if (key.store && !key.isAutoInc) {
                 stmt.forceSet(key, value)
-            } else if (key is One2ManyField<*, *>) {
+            } else if (key is One2ManyField<*, *> && value != null) {
                 one2ManyToMerge.add(One2ManyToMerge(key.targetField(), value as Set<Int>))
-            } else if (key is Many2ManyField<*, *>) {
+            } else if (key is Many2ManyField<*, *> && value != null) {
                 val link = key.link(ModelMany2Many)
                 many2ManyToMerge.add(Many2manyToMerge(link, value as Set<Int>))
             }
@@ -86,7 +86,7 @@ class RecordRepositoryImpl<M : BaseModel<M>>(override val env: PlatypusEnvironme
         val id = stmt[model.id]
         many2ManyToMerge.createMany2ManyLink(id)
         one2ManyToMerge.createOne2ManyLink(id)
-        env.cr.cache[model to id] = builderWithDefault
+//        env.cr.cache[model to id] = builderWithDefault
         return id
     }
 
@@ -99,7 +99,7 @@ class RecordRepositoryImpl<M : BaseModel<M>>(override val env: PlatypusEnvironme
                 mapValueAndDefault[f] = this.rawData[f]
             }
         }
-        return RecordBuilderToStoreImpl(mapValueAndDefault)
+        return RecordBuilderToStoreImpl(model, mapValueAndDefault)
     }
 
     private fun List<Many2manyToMerge>.createMany2ManyLink(id: Int) {

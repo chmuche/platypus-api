@@ -28,6 +28,8 @@ import kotlin.reflect.KProperty
 interface RecordBuilder<M : BaseModel<M>> {
     val rawData: Map<BaseField<M, *>, Any?>
 
+    val externalRef: String
+
     operator fun TimeField<M>.getValue(o: RecordBuilder<M>, desc: KProperty<*>): LocalTime?
     operator fun StringField<M>.getValue(o: RecordBuilder<M>, desc: KProperty<*>): String?
     operator fun TextField<M>.getValue(o: RecordBuilder<M>, desc: KProperty<*>): String?
@@ -40,10 +42,14 @@ interface RecordBuilder<M : BaseModel<M>> {
     operator fun BinaryField<M>.getValue(o: RecordBuilder<M>, desc: KProperty<*>): ByteArray?
     operator fun <TM : BaseModel<TM>> Many2OneField<M, TM>.getValue(o: RecordBuilder<M>, desc: KProperty<*>): PersistedRecord<TM>?
     operator fun IntField<M>.setValue(o: RecordBuilder<M>, desc: KProperty<*>, value: Int?)
+    operator fun <TM : BaseModel<TM>> One2ManyField<M, TM>.getValue(o: RecordBuilder<M>, desc: KProperty<*>): BagBuilder<M, TM>
+    operator fun <TM : BaseModel<TM>> Many2ManyField<M, TM>.getValue(o: RecordBuilder<M>, desc: KProperty<*>): BagBuilder<M, TM>
 
 }
 
-interface MutableRecordBuilder<M:BaseModel<M>>: RecordBuilder<M>{
+interface MutableRecordBuilder<M : BaseModel<M>> : RecordBuilder<M> {
+
+    override var externalRef: String
 
     operator fun StringField<M>.setValue(o: RecordBuilder<M>, desc: KProperty<*>, value: String?)
     operator fun <D : Selection<D>> SelectionField<M, D>.setValue(o: RecordBuilder<M>, desc: KProperty<*>, value: SelectionValue<D>?)
@@ -54,7 +60,7 @@ interface MutableRecordBuilder<M:BaseModel<M>>: RecordBuilder<M>{
     operator fun BooleanField<M>.setValue(o: RecordBuilder<M>, desc: KProperty<*>, value: Boolean?)
     operator fun DecimalField<M>.setValue(o: RecordBuilder<M>, desc: KProperty<*>, value: BigDecimal?)
     operator fun BinaryField<M>.setValue(o: RecordBuilder<M>, desc: KProperty<*>, value: ByteArray?)
-    operator fun <TM : BaseModel<TM>> Many2OneField<M, TM>.setValue(o: RecordBuilder<M>, desc: KProperty<*>, value: PersistedRecord<M>)
+    operator fun <TM : BaseModel<TM>> Many2OneField<M, TM>.setValue(o: RecordBuilder<M>, desc: KProperty<*>, value: PersistedRecord<TM>?)
 
     fun <TM : BaseModel<TM>> BagBuilder<M, TM>.add(records: Bag<TM>)
     fun <TM : BaseModel<TM>> BagBuilder<M, TM>.add(record: PersistedRecord<TM>)
@@ -63,8 +69,6 @@ interface MutableRecordBuilder<M:BaseModel<M>>: RecordBuilder<M>{
 
 interface RecordBuilderToUpdate<M : BaseModel<M>> : RecordBuilder<M> {
 
-    operator fun <TM : BaseModel<TM>> One2ManyField<M, TM>.getValue(o: RecordBuilderToUpdate<M>, desc: KProperty<*>): BagBuilderToUpdate<M, TM>
-    operator fun <TM : BaseModel<TM>> Many2ManyField<M, TM>.getValue(o: RecordBuilderToUpdate<M>, desc: KProperty<*>): BagBuilderToUpdate<M, TM>
 
     fun <TM : BaseModel<TM>> BagBuilder<M, TM>.replaceWith(records: Bag<TM>)
     fun <TM : BaseModel<TM>> BagBuilder<M, TM>.replaceWith(record: Record<TM>)
@@ -78,17 +82,14 @@ interface RecordBuilderToUpdate<M : BaseModel<M>> : RecordBuilder<M> {
 
 interface RecordBuilderToStore<M : BaseModel<M>> : RecordBuilder<M> {
 
-    operator fun <TM : BaseModel<TM>> One2ManyField<M, TM>.getValue(o: RecordBuilderToStore<M>, desc: KProperty<*>): BagBuilderToStore<M, TM>
-    operator fun <TM : BaseModel<TM>> Many2ManyField<M, TM>.getValue(o: RecordBuilderToStore<M>, desc: KProperty<*>): BagBuilderToStore<M, TM>
-
-    fun change(mutateBlock:MutableRecordBuilderToStore<M>.() -> Unit):RecordBuilderToStore<M>
+    fun change(mutateBlock: MutableRecordBuilderToStore<M>.() -> Unit): RecordBuilderToStore<M>
 }
 
 interface MutableRecordBuilderToStore<M : BaseModel<M>> : MutableRecordBuilder<M>, RecordBuilderToStore<M> {
 
 }
 
-interface BagBuilder<M : BaseModel<M>, TM : BaseModel<TM>>{
+interface BagBuilder<M : BaseModel<M>, TM : BaseModel<TM>> {
     val field: MultiReferencedField<M, TM>
 }
 

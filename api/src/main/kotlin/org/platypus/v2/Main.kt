@@ -8,6 +8,9 @@ import org.platypus.v2.modules.base.entities.locale
 import org.platypus.v2.modules.base.entities.name
 import org.platypus.v2.modules.base.entities.password
 import org.platypus.v2.modules.base.entities.users
+import org.platypus.v2.modules.base.models.Users.groups
+import org.platypus.v2.modules.base.models.Users.locale
+import org.platypus.v2.modules.base.models.Users.password
 import org.platypus.v2.record.bag.Bag
 import org.platypus.v2.record.bag.BagRecordImpl
 import org.platypus.v2.record.one.BagBuilder
@@ -41,20 +44,20 @@ fun main(args: Array<String>) {
     server.inManagedEnvironment {
 
         val group1 = it.groups.store(it.groups.builderToStore {
-            name = "Group1"
+            it.name = "Group1"
         })
         println(group1.id)
 
         val group2 = it.groups.store(it.groups.builderToStore {
-            name = "Group2"
+            it.name = "Group2"
         })
         println(group2.id)
 
         val userBuilder = it.users.builderToStore {
-            locale = "fr_FR"
-            name = "Damien"
-            password = "Fred2"
-            groups.add(group1 + group2)
+            it.locale = "fr_FR"
+            it.name = "Damien"
+            it.password = "Fred2"
+//            it.groups.add(group1 + group2)
         }
 
         val user = it.users.store(userBuilder)
