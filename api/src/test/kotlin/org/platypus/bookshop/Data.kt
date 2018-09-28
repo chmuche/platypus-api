@@ -16,6 +16,8 @@ import org.platypus.v2.env.PlatypusEnvironment
 import java.util.*
 import kotlin.math.absoluteValue
 
+data class BookData(val nbChapter: Int, val nbPage: IntRange)
+
 private val randomLine = arrayOf("Lorem ipsum dolor sit amet, consectetur adipiscing elit",
         "Ut volutpat augue quis dapibus luctus",
         "Cras eleifend purus vitae lacinia facilisis",
@@ -55,9 +57,11 @@ private val randomLine = arrayOf("Lorem ipsum dolor sit amet, consectetur adipis
 val book1Data = createData { env ->
     for (bookNum in 1..20) {
         val author = env.author.store(env.author.builderToStore {
-            it.name = "Author 1"
+            it.externalRef = "author_$bookNum"
+            it.name = "Author $bookNum"
         })
         val book = env.books.store(env.books.builderToStore {
+            it.externalRef = "book_$bookNum"
             it.name = "Book $bookNum"
             it.isbn = "ISBN $bookNum"
             it.synopsys = """Lorem ipsum dolor sit amet, consectetur adipiscing elit.
@@ -73,12 +77,14 @@ Suspendisse vestibulum vestibulum accumsan.
 """
             it.mainAuthor = author
         })
-        for (chapterNum in 1..10) {
+        for (chapterNum in 0..10) {
             val chapter = env.bookChapter.store(env.bookChapter.builderToStore {
+                it.externalRef = "book_${bookNum}_chapter_$chapterNum"
                 it.name = "Chapter $chapterNum of the Book $bookNum"
             })
             for (page in 1..25) {
                 env.Page.store(env.Page.builderToStore {
+                    it.externalRef = "book_${bookNum}_page_${(chapterNum * 25) + page + 1}"
                     it.number = page
                     it.chapter = chapter
                     it.book = book

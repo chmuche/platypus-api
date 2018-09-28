@@ -75,5 +75,9 @@ interface SelectModelWhereBuilder<M : BaseModel<M>> : FieldJoiner<M>, Alias<M> {
             M9 : BaseModel<M9>>
             Join10<M, M1, M2, M3, M4, M5, M6, M7, M8, M9>.predicate(getter: Alias<M9>.(M9) -> Predicate): Predicate
 
-    fun FROM(dialect: DbDialect, predicate: Predicate): String
+    fun FROM(dialect: DbDialect): String
+    fun WHERE(dialect: DbDialect, predicate: Predicate): String
+    fun ORDER_BY(dialect: DbDialect, predicate: Predicate): String
+    fun LIMIT(dialect: DbDialect): String
+    fun OFFSET(dbDialect: DbDialect): String
 }

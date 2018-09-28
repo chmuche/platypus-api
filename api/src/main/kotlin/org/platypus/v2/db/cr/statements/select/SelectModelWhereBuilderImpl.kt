@@ -4,15 +4,19 @@ import org.platypus.v2.db.QueryBuilder
 import org.platypus.v2.db.database.DbDialect
 import org.platypus.v2.db.predicate.Predicate
 import org.platypus.v2.model.Alias
-import org.platypus.v2.model.AliasImpl
 import org.platypus.v2.model.BaseModel
+import org.platypus.v2.model.field.api.BaseField
 import org.platypus.v2.model.field.reference.Many2OneField
 import org.platypus.v2.utils.enter
 import org.platypus.v2.utils.token
+import sun.text.normalizer.UTF16.append
 
 class SelectModelWhereBuilderImpl<M : BaseModel<M>>(val from: Alias<M>) : SelectModelWhereBuilder<M>, Alias<M> by from {
 
     private val joins: MutableList<JoinStatementPart<*, *>> = ArrayList()
+    private var limit: Int = -1
+    private var offset: Int = -1
+    private val orderBy: MutableList<Pair<BaseField<*, *>, Boolean>> = ArrayList()
 
     fun MutableList<JoinStatementPart<*, *>>.addIfNotIn(e: JoinStatementPart<*, *>): Boolean {
         var result = false
@@ -22,16 +26,32 @@ class SelectModelWhereBuilderImpl<M : BaseModel<M>>(val from: Alias<M>) : Select
         return result
     }
 
-    override fun FROM(dialect: DbDialect, predicate: Predicate) = buildString {
+    override fun FROM(dialect: DbDialect): String = buildString {
         token("FROM")
         token(from.tableName)
         val qb = QueryBuilder(false)
         for (join in joins) {
             append(join.toSql(dialect, qb))
         }
+    }
+
+    override fun WHERE(dialect: DbDialect, predicate: Predicate): String = buildString {
+        val qb = QueryBuilder(false)
         enter()
         token("WHERE")
         append(predicate.toSql(dialect, qb))
+    }
+
+    override fun ORDER_BY(dialect: DbDialect, predicate: Predicate): String {
+        TODO("not implemented")
+    }
+
+    override fun LIMIT(dialect: DbDialect): String {
+        TODO("not implemented")
+    }
+
+    override fun OFFSET(dbDialect: DbDialect): String {
+        TODO("not implemented")
     }
 
     override fun <M1 : BaseModel<M1>, M2 : BaseModel<M2>> Many2OneField<M, M1>.join(getter: M1.() -> Many2OneField<M1, M2>): Join3<M, M1, M2> {

@@ -1,13 +1,19 @@
 package org.platypus.v2.record.repo
 
+import org.platypus.v2.db.cr.statements.select.SelectModelStatement
+import org.platypus.v2.db.cr.statements.select.SelectModelWhereBuilder
+import org.platypus.v2.db.cr.statements.select.SelectModelWhereBuilderImpl
 import org.platypus.v2.db.predicate.InListPredicate
+import org.platypus.v2.db.predicate.Predicate
 import org.platypus.v2.env.PlatypusEnvironment
+import org.platypus.v2.model.AliasImpl
 import org.platypus.v2.model.BaseModel
 import org.platypus.v2.model.ModelMany2Many
 import org.platypus.v2.model.field.api.BaseField
 import org.platypus.v2.model.field.reference.Many2ManyField
 import org.platypus.v2.model.field.reference.One2ManyField
 import org.platypus.v2.model.storeFields
+import org.platypus.v2.modules.base.models.Users
 import org.platypus.v2.record.bag.Bag
 import org.platypus.v2.record.bag.BagRecordImpl
 import org.platypus.v2.record.one.MutableRecordBuilderToStore
@@ -43,6 +49,8 @@ interface RecordRepository<M : BaseModel<M>> : Environmentable, SudoAble<RecordR
     fun store(builder: RecordBuilderToStore<M>): Record<M>
 
     fun store(builders: Iterable<RecordBuilderToStore<M>>): Bag<M>
+
+    fun search(predicate: SelectModelWhereBuilder<M>.(M) -> Unit): Bag<M>
 }
 
 class RecordRepositoryImpl<M : BaseModel<M>>(override val env: PlatypusEnvironment, override val model: M) : RecordRepository<M> {
@@ -55,6 +63,12 @@ class RecordRepositoryImpl<M : BaseModel<M>>(override val env: PlatypusEnvironme
 
     override fun builderToUpdate(init: RecordBuilderToUpdate<M>.() -> Unit): RecordBuilderToUpdate<M> {
         TODO("not implemented")
+    }
+
+    override fun search(predicate: SelectModelWhereBuilder<M>.(M) -> Unit): Bag<M> {
+        val searchBuilder = SelectModelWhereBuilderImpl(AliasImpl(model, "main_table"))
+        val predicate = searchBuilder.predicate(model)
+        val query = SelectModelStatement(env.cr.dialect, AliasImpl(model, "main_table"), searchBuilder)
     }
 
     override fun store(builder: RecordBuilderToStore<M>): Record<M> {
