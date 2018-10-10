@@ -1311,7 +1311,7 @@
   <component name="NodePackageJsonFileManager">
     <packageJsonPaths />
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="1667" />
     <option name="y" value="28" />
     <option name="width" value="1853" />
@@ -1728,16 +1728,15 @@
       <workItem from="1538044751128" duration="1517000" />
       <workItem from="1538065269688" duration="6139000" />
       <workItem from="1538128964729" duration="3257000" />
-      <workItem from="1538152492032" duration="704000" />
+      <workItem from="1538152492032" duration="1184000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="113711000" />
+    <option name="totallyTimeSpent" value="114191000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1667" y="28" width="1853" height="1018" extended-state="7" />
-    <editor active="true" />
+    <frame x="1667" y="28" width="1853" height="1018" extended-state="6" />
     <layout>
       <window_info anchor="right" id="PlantUML" order="12" />
       <window_info anchor="bottom" id="Tool Output" order="16" />
@@ -1758,8 +1757,8 @@
       <window_info anchor="right" id="Capture Analysis" order="4" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4957265" weight="0.4669653" />
       <window_info anchor="bottom" id="Version Control" order="9" weight="1.0" />
-      <window_info anchor="bottom" id="Terminal" order="10" sideWeight="0.4956229" weight="0.31431767" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.494302" visible="true" weight="0.19634956" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="10" sideWeight="0.4956229" visible="true" weight="0.31354985" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.494302" visible="true" weight="0.19634956" />
       <window_info anchor="right" id="Gradle" order="8" weight="0.3151515" />
       <window_info anchor="right" id="SciView" order="9" sideWeight="0.494302" weight="0.32996634" />
       <window_info anchor="right" id="Theme Preview" order="10" />
